@@ -1,18 +1,25 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// CreatureAI.cs - Manages creature behavior, movement, and species-specific traits
-/// Each Bolimcain species has unique movement patterns and difficulty
+/// 12 Bolimcain species with unique movement patterns and difficulty
 /// </summary>
 public class CreatureAI : MonoBehaviour
 {
     public enum SpeciesType
     {
-        Artyn,      // Fast, aggressive
-        Falk,       // Slow, predictable
-        Valvule,    // Balanced
-        Marsshowt   // Tricky, evasive
+        Zarnk,      // Fire - Fast
+        Falk,       // Earth - Slow
+        Valvule,    // Plant - Balanced
+        Marsshowt,  // Dark - Tricky
+        Opini,      // Rock - Fast
+        Carchem,    // Fighter - Slow
+        Bloblly,    // Water - Fast
+        Closset,    // Ice - Slow
+        Fatter,     // Ghost - Fast
+        Vark,       // Normal - Balanced
+        Flapoy,     // Fly - Fast
+        Tirent      // Electric - Fast
     }
 
     [SerializeField] private SpeciesType species = SpeciesType.Valvule;
@@ -57,17 +64,28 @@ public class CreatureAI : MonoBehaviour
         // Species-specific behavior
         switch (species)
         {
-            case SpeciesType.Artyn:
-                BehaviorArtyn();
+            case SpeciesType.Zarnk:
+            case SpeciesType.Opini:
+            case SpeciesType.Bloblly:
+            case SpeciesType.Fatter:
+            case SpeciesType.Flapoy:
+            case SpeciesType.Tirent:
+                BehaviorFast();
                 break;
+
             case SpeciesType.Falk:
-                BehaviorFalk();
+            case SpeciesType.Carchem:
+            case SpeciesType.Closset:
+                BehaviorSlow();
                 break;
+
             case SpeciesType.Valvule:
-                BehaviorValvule();
+            case SpeciesType.Vark:
+                BehaviorBalanced();
                 break;
+
             case SpeciesType.Marsshowt:
-                BehaviorMarsshowt();
+                BehaviorTricky();
                 break;
         }
 
@@ -81,45 +99,52 @@ public class CreatureAI : MonoBehaviour
     {
         switch (species)
         {
-            case SpeciesType.Artyn:
-                movementSpeed = baseSpeed * 1.8f; // 80% faster
-                changeInterval = directionChangeInterval * 0.7f; // Change direction more often
-                evasionChance = 0.2f; // 20% chance to evade
+            case SpeciesType.Zarnk:
+            case SpeciesType.Opini:
+            case SpeciesType.Bloblly:
+            case SpeciesType.Fatter:
+            case SpeciesType.Flapoy:
+            case SpeciesType.Tirent:
+                movementSpeed = baseSpeed * 1.8f;
+                changeInterval = directionChangeInterval * 0.7f;
+                evasionChance = 0.2f;
                 break;
 
             case SpeciesType.Falk:
-                movementSpeed = baseSpeed * 0.5f; // 50% slower
-                changeInterval = directionChangeInterval * 1.5f; // Change direction less often
-                evasionChance = 0f; // No evasion
+            case SpeciesType.Carchem:
+            case SpeciesType.Closset:
+                movementSpeed = baseSpeed * 0.5f;
+                changeInterval = directionChangeInterval * 1.5f;
+                evasionChance = 0f;
                 break;
 
             case SpeciesType.Valvule:
-                movementSpeed = baseSpeed; // Normal speed
-                changeInterval = directionChangeInterval; // Normal change rate
-                evasionChance = 0.1f; // 10% chance to evade
+            case SpeciesType.Vark:
+                movementSpeed = baseSpeed;
+                changeInterval = directionChangeInterval;
+                evasionChance = 0.1f;
                 break;
 
             case SpeciesType.Marsshowt:
-                movementSpeed = baseSpeed * 1.3f; // 30% faster
-                changeInterval = directionChangeInterval * 0.5f; // Very unpredictable
-                evasionChance = 0.4f; // 40% chance to evade!
+                movementSpeed = baseSpeed * 1.3f;
+                changeInterval = directionChangeInterval * 0.5f;
+                evasionChance = 0.4f;
                 break;
         }
     }
 
     /// <summary>
-    /// Artyn: Fast, aggressive. Quick directional changes, active movement
+    /// FAST Species: Zarnk, Opini, Bloblly, Fatter, Flapoy, Tirent
+    /// Quick directional changes, active movement
     /// </summary>
-    private void BehaviorArtyn()
+    private void BehaviorFast()
     {
-        // Change direction frequently and erratically
         if (directionChangeTimer <= 0)
         {
             PickNewDirection();
-            directionChangeTimer = changeInterval + Random.Range(-0.3f, 0.3f); // Add variance
+            directionChangeTimer = changeInterval + Random.Range(-0.3f, 0.3f);
         }
 
-        // Check for obstacles
         if (IsPathBlocked())
         {
             PickNewDirection();
@@ -129,18 +154,17 @@ public class CreatureAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Falk: Slow, predictable. Easy to predict movement
+    /// SLOW Species: Falk, Carchem, Closset
+    /// Slow, predictable movement
     /// </summary>
-    private void BehaviorFalk()
+    private void BehaviorSlow()
     {
-        // Change direction slowly and predictably
         if (directionChangeTimer <= 0)
         {
             PickNewDirection();
             directionChangeTimer = changeInterval;
         }
 
-        // Check for obstacles
         if (IsPathBlocked())
         {
             PickNewDirection();
@@ -150,18 +174,17 @@ public class CreatureAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Valvule: Balanced. Standard patrol behavior
+    /// BALANCED Species: Valvule, Vark
+    /// Standard patrol behavior
     /// </summary>
-    private void BehaviorValvule()
+    private void BehaviorBalanced()
     {
-        // Standard behavior
         if (directionChangeTimer <= 0)
         {
             PickNewDirection();
             directionChangeTimer = changeInterval;
         }
 
-        // Check for obstacles
         if (IsPathBlocked())
         {
             PickNewDirection();
@@ -171,17 +194,15 @@ public class CreatureAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Marsshowt: Tricky, evasive. Unpredictable movement, dodges randomly
+    /// TRICKY Species: Marsshowt
+    /// Very unpredictable movement, dodges randomly (40% chance)
     /// </summary>
-    private void BehaviorMarsshowt()
+    private void BehaviorTricky()
     {
-        // Very frequent direction changes
         if (directionChangeTimer <= 0)
         {
-            // Sometimes dodge dramatically
             if (Random.value < evasionChance)
             {
-                // Sudden direction change (dodge)
                 currentDirection = Random.insideUnitCircle.normalized;
             }
             else
@@ -191,10 +212,8 @@ public class CreatureAI : MonoBehaviour
             directionChangeTimer = changeInterval;
         }
 
-        // Check for obstacles
         if (IsPathBlocked())
         {
-            // Dodge instead of just turning
             currentDirection = Random.insideUnitCircle.normalized;
         }
 
